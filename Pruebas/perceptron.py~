@@ -1,6 +1,0 @@
-desiredOutput = (-29, 10, -1)
-
-dataSet = []
-dataSetFile = open("train_set.txt", 'r')
-
-print("ECHO")
