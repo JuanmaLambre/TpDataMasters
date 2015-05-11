@@ -1,40 +1,38 @@
-def wPorX(w, x):
-	return (w[0] + w[1]*x[1] + w[2]*x[2])
+import textScore as ts
+import matplotlib.pyplot as plt
 
-def y(w, x):
-	return ( (w[0], w[1]*x[1], w[2]*x[2]) )
 
-def algunPuntoNoCalifica(w, dataSet):
-	for x in dataSet:
-		if ( wPorX(w,x) * x[3] < 0 ):
-			return True
+trainData = open("../labeledTrainData.tsv", 'r')
+# Dismissing the header:
+trainData.readline()
+
+# scores[0] is a list for negative reviews (according to sentiment)
+# scores[1] is a list for positive reviews
+scores = [[], []]
+
+# Getting the scores for each review:
+wholeReview = trainData.readline()
+iteration = 0
+while wholeReview and iteration < 2000:
+	rawReview = wholeReview.split('\t')[2]
+	reviewScores = ts.textScore(rawReview)
+	sentiment = int( wholeReview.split('\t')[1] )
+	scores[sentiment].append(reviewScores)
 	
-	return False
-
-
-outputApuntes = (-29, 10, -1)
-
-# dataSet[i] es un punto
-dataSet = []
-dataSetFile = open('train_set.txt', 'r')
-currentLine = dataSetFile.readline()
-
-# Cargo los datos en datSet
-while ( currentLine ):
-	vec = currentLine.split(' ')
-	dataSet.append( (1, int(vec[0]), int(vec[1]), int(vec[2])) )
-	currentLine = dataSetFile.readline()
+	wholeReview = trainData.readline()
+	iteration += 1
 	
-w = (-19, 12, 3)
 
-while algunPuntoNoCalifica(w, dataSet):
-	for x in dataSet:
-		if wPorX(w,x) * x[3] < 0:
-			w = ( w[0]+x[3]*x[0], w[1]+x[3]*x[1], w[2]+x[3]*x[2] )
+positiveX, positiveY = [], []
+negativeX, negativeY = [], []
 
-			
-print "Output apuntes:", outputApuntes
-print "Output calculado:", w
-			
-			
-			
+for score in scores[0]:
+	positiveX.append(score[0])
+	positiveY.append(score[1])
+	
+for score in scores[1]:
+	negativeX.append(score[0])
+	negativeY.append(score[1])
+	
+plt.plot(positiveX, positiveY, 'bo', negativeX, negativeY, 'ro')
+plt.show()
