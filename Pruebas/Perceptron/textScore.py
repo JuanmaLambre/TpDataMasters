@@ -37,3 +37,9 @@ def textScore(text):
 			negativeScore -= wordScore
 		
 	return (positiveScore, negativeScore)
+	
+	
+	
+	
+	
+	

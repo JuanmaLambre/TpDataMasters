@@ -9,6 +9,7 @@
 # *************************************************************************** #
 
 import cleanText as cl
+import matplotlib.pyplot as plt
 
 scoresFile = open('AFINN-111.txt', 'r')
 scores = {}
@@ -30,10 +31,16 @@ def textScore(text):
 	negativeScore, positiveScore = 0, 0
 	wordsVec = cl.cleanText(text)
 	for word in wordsVec:
-		wordScore += scores.get(word, 0)
+		wordScore = scores.get(word, 0)
 		if wordScore > 0:
 			positiveScore += wordScore
 		else:
 			negativeScore -= wordScore
 		
 	return (positiveScore, negativeScore)
+	
+	
+	
+	
+	
+	
