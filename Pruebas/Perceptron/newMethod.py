@@ -44,6 +44,7 @@ labeled.readline()
 
 reviewLine = labeled.readline()
 reviewsTotales, reviewsAcertados = 0.0, 0.0
+print ">>> Some examples: <<<"
 while reviewLine:
 	reviewText = reviewLine.split('\t')[2]
 	realSentiment = int( reviewLine.split('\t')[1] )

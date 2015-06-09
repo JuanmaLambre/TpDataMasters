@@ -1,0 +1,11 @@
+stopwordsFile = open("../stopWords", 'r')
+stopwords = []
+for line in stopwordsFile:
+	stopwords.append( line[:len(line)-1] )
+	
+def removeStopwords(wordsList):
+	newList = []
+	for word in wordsList:
+		if word not in stopwords:
+			newList.append(word)
+	return newList	

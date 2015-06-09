@@ -13,24 +13,26 @@ scores = [[], []]
 
 # Getting the scores for each review:
 wholeReview = trainData.readline()
-iteration, porcentaje = 0, 0
-MAX_ITERATION = 1000.0
+iteration = 0.0
+acertados = 0.0
+MAX_ITERATION = 25000.0
+print "PREDICIENDO CON AFINN-111..."
 while wholeReview and iteration < MAX_ITERATION:
 	rawReview = wholeReview.split('\t')[2]
 	reviewScores = ts.textScore(rawReview)
 	reviewScoresWithID = (reviewScores[0], reviewScores[1], wholeReview.split('\t')[0])
-	sentiment = int( wholeReview.split('\t')[1] )
-	scores[sentiment].append(reviewScoresWithID)
+	sentiment = bool( int(wholeReview.split('\t')[1]) )
+	prediccion = (reviewScores[0] - reviewScores[1]) > 0
+	acertados += prediccion == sentiment
 	
 	wholeReview = trainData.readline()
 	iteration += 1
 	
-	porcentaje = int(iteration*100.0/MAX_ITERATION)
-	sys.stdout.write("\r%d%%" % int(porcentaje))
-	sys.stdout.flush()
-
+	sys.stdout.write("\r%d%%" % int(iteration*100/MAX_ITERATION))
+print
 	
-
+print "ACERTADOS:", acertados*100/iteration, "%"
+'''
 # Preparo las variables necesarias para graficar:
 positiveX, positiveY = [], []
 negativeX, negativeY = [], []
@@ -51,13 +53,6 @@ for point in repeatedPoints:
 	bothX.append(point[0])
 	bothY.append(point[1])
 	
-# Y ahora grafico los resultados. En azul estan los reviews positivos, en rojo
-# los negativos y en violeta los puntajes que aparecen en ambos
-plt.plot(positiveX, positiveY, 'bo')
-plt.show()
-plt.plot(negativeX, negativeY, 'ro')
-plt.show()
-plt.plot(bothX, bothY, 'mo')
-plt.show()
-plt.plot(positiveX, positiveY, 'bo', negativeX, negativeY, 'ro', bothX, bothY, 'mo')
-plt.show()
+'''
+	
+	

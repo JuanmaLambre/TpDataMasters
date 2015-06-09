@@ -10,33 +10,22 @@
 #
 
 import cleanText as ct
+import multiShingles
+import removeStopwords as rm
 import matplotlib.pyplot as plt
 import sys
 print "----------"
-
-# Primero que todo, creo un hash con los puntajes de cada shingle
-
-#	Dado una lista de palabras devuelve una lista de shingles de 'multi' palabras
-def joinMultiShingles(multi, wordsList):
-	shingles = []	
-	for i in range(len(wordsList)-multi+1):
-		# Uno las palabras a shingle:
-		shingle = ""
-		for j in range(multi):
-			shingle += wordsList[i+j] + " "
-		# Remuevo el ultimo espacio
-		shingle = shingle[:len(shingle)-1]
-		shingles.append( shingle )
-		
-	return shingles
 	
+#
+#	MAIN:
+#
 	
 puntajes = {}
 labeled = open("../labeledTrainData.tsv", 'r')
 labeled.readline()
 
 #	Obtengo una lista de tuplas ([shingles], sentiment), una por cada review
-MULTI = 5 # PARAMETRO
+MULTI = 2 # PARAMETRO
 print "MULTI =", MULTI
 reviewsProcesadas = []
 MAX_ITERACIONES = 20000.0
@@ -47,7 +36,7 @@ while line and iteracion < MAX_ITERACIONES:
 	reviewVec = line.split('\t')
 	rawReview = reviewVec[2]
 	cleanReview = ct.cleanText(rawReview)
-	shingles = joinMultiShingles(MULTI, cleanReview)
+	shingles = multiShingles.join( MULTI, rm.removeStopwords(cleanReview) )
 	sentiment = int( reviewVec[1] )
 	
 	reviewsProcesadas.append( (shingles,sentiment) )
@@ -72,7 +61,7 @@ for review in reviewsProcesadas:
 # Obtenidos los puntajes ahora voy a calificar los siguientes reviews y ver
 # que tan bien o mal califico
 
-correctos, incorrectos = 0.0, 0.0
+correctos, incorrectos, sinShingles = 0.0, 0.0, 0
 iteracion = 0.0
 MAX_PRUEBAS = 4900.0
 line = labeled.readline()
@@ -80,7 +69,7 @@ print "PREDICIENDO..."
 while line and iteracion < MAX_PRUEBAS:
 	rawReview = line.split('\t')[2]
 	cleanReview = ct.cleanText(rawReview)
-	shingles = joinMultiShingles(MULTI, cleanReview)
+	shingles = multiShingles.join(MULTI, cleanReview)
 	puntajePos, puntajeNeg = 0, 0
 	for sh in shingles:
 		puntajeShingle = puntajes.get(sh, (0,0))
@@ -91,14 +80,16 @@ while line and iteracion < MAX_PRUEBAS:
 		prediccion = (puntajePos > puntajeNeg)
 		correctos += (prediccion == sentimientoPosta)
 		incorrectos += (prediccion != sentimientoPosta)
-		
+	if (puntajePos == 0 and puntajeNeg == 0):
+		sinShingles += 1
 	line = labeled.readline()
 	iteracion += 1
 	sys.stdout.write("\r%d%%" % int(iteracion*100/MAX_PRUEBAS))
 print
 
 print "\nCORRECTOS:", correctos*100/(correctos+incorrectos), "%"
-print "EVALUADOS:", correctos+incorrectos, "out of", iteracion, " (", (correctos+incorrectos)*100/iteracion, " % )\n"
+print "EVALUADOS:", correctos+incorrectos, "out of", iteracion, " (", (correctos+incorrectos)*100/iteracion, "% )"
+print "SIN SHINGLES:", sinShingles
 
 
 # Aca voy a graficar los reviews que quedaron sin entrenar para ver si hay una

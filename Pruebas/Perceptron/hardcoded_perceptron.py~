@@ -43,7 +43,7 @@ print "Output calculado:", w
 # Graphing the result w=(-28, 10, -1)
 domain = np.arange(0.0, 8.0, 0.1)
 def f(x):
-	return -28.0/1.0 - 10.0/1.0 * x
+	return -28.0/1.0 + 10.0/1.0 * x
 
 xPositive, yPositive = [], []
 yNegative, xNegative = [], []

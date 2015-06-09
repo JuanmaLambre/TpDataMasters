@@ -60,7 +60,7 @@ while reviewLine:
 	reviewLine = labeled.readline()
 	reviewsTotales += 1
 	
-	if len(reviewText.split()) < 10:
+	if len(reviewText.split()) < 15:
 		print "---------"
 		print reviewText
 		print "Puntaje +:", puntajePositivo

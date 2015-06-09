@@ -12,7 +12,6 @@ def algunPuntoNoCalifica(w, dataSet):
 	for x in dataSet:
 		if ( wPorX(w,x) * x[3] < 0 ):
 			return True
-	
 	return False
 
 
