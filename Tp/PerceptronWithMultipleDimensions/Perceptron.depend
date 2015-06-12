@@ -1,0 +1,59 @@
+# depslib dependency file v1.0
+1433710740 source:/home/juanma/Perceptron/Perceptron/main.cpp
+	<iostream>
+	"Misc.h"
+	"Perceptron.h"
+
+1433708732 /home/juanma/Perceptron/Perceptron/include/Misc.h
+	<string>
+	<vector>
+
+1433709932 source:/home/juanma/Perceptron/Perceptron/src/Misc.cpp
+	"Misc.h"
+	<fstream>
+	<sstream>
+	<algorithm>
+	<iostream>
+
+1433712030 source:/home/juanma/Perceptron/Perceptron/src/Perceptron.cpp
+	"Perceptron.h"
+	<cstdlib>
+	<vector>
+	"Misc.h"
+
+1433709427 /home/juanma/Perceptron/Perceptron/include/Perceptron.h
+	<string>
+	<iostream>
+	<map>
+	<list>
+	<fstream>
+
+1433712424 source:/home/juanma/workspace/7506/TpDataMasters/Tp/Perceptron/src/Perceptron.cpp
+	"Perceptron.h"
+	<cstdlib>
+	<vector>
+	"Misc.h"
+
+1433709427 /home/juanma/workspace/7506/TpDataMasters/Tp/Perceptron/include/Perceptron.h
+	<string>
+	<iostream>
+	<map>
+	<list>
+	<fstream>
+
+1433708732 /home/juanma/workspace/7506/TpDataMasters/Tp/Perceptron/include/Misc.h
+	<string>
+	<vector>
+
+1433713453 source:/home/juanma/workspace/7506/TpDataMasters/Tp/Perceptron/src/Misc.cpp
+	"Misc.h"
+	<fstream>
+	<sstream>
+	<algorithm>
+	<iostream>
+
+1433713498 source:/home/juanma/workspace/7506/TpDataMasters/Tp/Perceptron/main.cpp
+	<iostream>
+	"Misc.h"
+	"Perceptron.h"
+
