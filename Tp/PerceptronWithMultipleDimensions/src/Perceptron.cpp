@@ -27,7 +27,7 @@ Perceptron::Perceptron(const std::string &filename,
 
 		// Considerando 1 palabra
 		std::getline(oneWordFile, line);
-		for(int i = 0; i < 50000; ++i) {
+		for(int i = 0; i < 40000; ++i) {
 			std::getline(oneWordFile, line);
 			std::string word = misc.split(line, '\t')[0];
 			W[word] = 0;
@@ -36,11 +36,11 @@ Perceptron::Perceptron(const std::string &filename,
 		// Considerando 2 palabras
 		if (n >= 2) {
 			getline(twoWordFile, line);
-			for(int i = 50000; i < 150000; ++i) {
+			for(int i = 50000; i < 170000; ++i) {
 				getline(twoWordFile, line);
 				std::string word1 = misc.split(line, '\t')[0];
 				std::string word2 = misc.split(line, '\t')[1];
-				W[word1+word2] = 0;
+				W[word1 + " " + word2] = 0;
 			}
 		}
 	}
@@ -73,6 +73,7 @@ void Perceptron::entrenar(int iterations) {
         int sentiment;
         std::vector<std::string> simpleShingles;
         int nroReview = 0;
+        //bool inabilitar_siguiente = false;			//ESTA HAY QUE DESCOMENTAR
         while (std::getline(trainFile, line)) {
         	nroReview++;
 			// Shinglize el texto:
@@ -88,10 +89,32 @@ void Perceptron::entrenar(int iterations) {
 			std::vector<std::string>::iterator itShingles;
 
 			for (itShingles = simpleShingles.begin(); itShingles != simpleShingles.end(); ++itShingles) {
+
 				std::string word = (*itShingles);
 				if (W.count(word) != 0) {
 					product += W[word];
 				}
+				if (itShingles + 1 != simpleShingles.end()) {
+					std::string twoWord = (*itShingles) + " " + (*(itShingles + 1));
+					if (W.count(twoWord) != 0) {
+						product += W[twoWord];
+					}
+				}
+				/*	if (itShingles + 1 != simpleShingles.end()) {
+						std::string twoWord = (*itShingles) + " " + (*(itShingles + 1));
+						if (W.count(twoWord) != 0) {
+							product += W[twoWord];
+							inabilitar_siguiente = true;
+
+						} else if (!inabilitar_siguiente){
+							std::string word = (*itShingles);
+							if (W.count(word) != 0) {
+								product += W[word];
+							}
+						} else {
+							inabilitar_siguiente = false;
+						}
+					}	*/
 			}
 			sentimentText = line.substr(line.find('\t') + 1, 1);
 			sentiment = atoi(sentimentText.c_str());
@@ -115,6 +138,27 @@ void Perceptron::entrenar(int iterations) {
 					if (W.count(word) != 0) {
 						W[word] += recalculate;
 					}
+					if (itShingles + 1 != simpleShingles.end()) {
+						std::string twoWord = (*itShingles) + " " + (*(itShingles + 1));
+						if (W.count(twoWord) != 0) {
+							W[twoWord] += recalculate;
+						}
+					}
+					/*	if (itShingles + 1 != simpleShingles.end()) {
+							std::string twoWord = (*itShingles) + " " + (*(itShingles + 1));
+							if (W.count(twoWord) != 0) {
+								W[twoWord] += recalculate;
+								inabilitar_siguiente = true;
+
+							} else if (!inabilitar_siguiente){
+								std::string word = (*itShingles);
+								if (W.count(word) != 0) {
+									W[word] += recalculate;
+								}
+							} else {
+								inabilitar_siguiente = false;
+							}
+						}	*/
 				}
 			}
         }
@@ -149,6 +193,7 @@ void Perceptron::calificar(const std::string& testFilename,
 
 		// Procesado de review (multiplicacion de reviewSingles x W):
 		//	(1) Obtengo el producto:
+		bool inabilitar_siguiente = false;
 		int product = 0;
 		std::vector<std::string>::iterator itShingles;
 		for (itShingles = reviewSimpleShingles.begin(); itShingles != reviewSimpleShingles.end(); ++itShingles) {
@@ -156,6 +201,29 @@ void Perceptron::calificar(const std::string& testFilename,
 			if (W.count(word) != 0) {
 				product += W[word];
 			}
+			if (itShingles + 1 != reviewSimpleShingles.end()) {
+				std::string twoWord = (*itShingles) + " " + (*(itShingles + 1));
+				if (W.count(twoWord) != 0) {
+					product += W[twoWord];
+				}
+			}
+			/*	if (itShingles + 1 != simpleShingles.end()) {
+					std::string twoWord = (*itShingles) + " " + (*(itShingles + 1));
+					if (W.count(twoWord) != 0) {
+						product += W[twoWord];
+						inabilitar_siguiente = true;
+
+					} else if (!inabilitar_siguiente){
+						std::string word = (*itShingles);
+						if (W.count(word) != 0) {
+							product += W[word];
+						}
+					} else {
+						inabilitar_siguiente = false;
+					}
+				}	*/
+
+
 		}
 		//	(2) Actualizo productos maximos y minimos para luego normalizar:
 		if (minProduct > product) {
@@ -166,13 +234,12 @@ void Perceptron::calificar(const std::string& testFilename,
 		}
 		//	(3) Guardo el producto por cada id:
 		idProduct[id] = product;
-		printf("Iteracion: %d\n",iteracion);
 		std::cout << "\r" << (int)(++iteracion*100.0/25000) << '%';
 	}
 	std::map<std::string, int>::iterator itIds;
 	for (itIds = idProduct.begin(); itIds != idProduct.end(); ++itIds ) {
 		results << (*itIds).first + ',';
-		results << ((*itIds).second - minProduct) / (maxProduct - minProduct) << '\n';
+		results << float(((*itIds).second - minProduct)) / float((maxProduct - minProduct)) << '\n';
 	}
 
 	std::cout << "\r100%\n";
