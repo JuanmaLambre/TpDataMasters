@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include "Misc.h"
 #include "Perceptron.h"
 using namespace std;
