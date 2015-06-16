@@ -13,9 +13,10 @@
 Perceptron::Perceptron(const std::string &filename,
 					   const std::string &oneWordsDoc,
 					   const std::string &twoWordsDoc,
+					   const std::string &threeWordsDoc,
 					   int n,
 					   bool preprocesado)
-		:oneWordFile(oneWordsDoc.c_str()), twoWordFile(twoWordsDoc.c_str()){
+		:oneWordFile(oneWordsDoc.c_str()), twoWordFile(twoWordsDoc.c_str()), threeWordFile(threeWordsDoc.c_str()){
 	std::cout << "INICIALIZANDO..." << std::endl;
 	Misc misc;
 	labeledFile = filename;
@@ -27,25 +28,41 @@ Perceptron::Perceptron(const std::string &filename,
 
 		// Considerando 1 palabra
 		std::getline(oneWordFile, line);
-		for(int i = 0; i < 50000; ++i) {
+		for(int i = 0; i < 102707; ++i) {
 			std::getline(oneWordFile, line);
 			std::string word = misc.split(line, '\t')[0];
-			W[word] = 0;
+			float random = (rand() % 10) - 5;
+			W[word] = random;
 		}
 
 		// Considerando 2 palabras
 		if (n >= 2) {
 			getline(twoWordFile, line);
-			for(int i = 50000; i < 170000; ++i) {
+			for(int i = 0; i < 3145919; ++i) {
 				getline(twoWordFile, line);
 				std::string word1 = misc.split(line, '\t')[0];
 				std::string word2 = misc.split(line, '\t')[1];
-				W[word1 + " " + word2] = 0;
+				float random = (rand() % 10) - 5;
+				W[word1 + " " + word2] = random;
+			}
+		}
+
+		// Considerando 3 palabras
+		if (n >= 3) {
+			getline(threeWordFile, line);
+			for(int i = 0; i < 5636985; ++i) {
+				getline(threeWordFile, line);
+				std::string word1 = misc.split(line, '\t')[0];
+				std::string word2 = misc.split(line, '\t')[1];
+				std::string word3 = misc.split(line, '\t')[2];
+				float random = (rand() % 10) - 5;
+				W[word1 + " " + word2 + " " + word3] = random;
 			}
 		}
 	}
 	oneWordFile.close();
 	twoWordFile.close();
+	threeWordFile.close();
 }
 
 Perceptron::~Perceptron(){
@@ -73,7 +90,7 @@ void Perceptron::entrenar(int iterations) {
         int sentiment;
         std::vector<std::string> simpleShingles;
         int nroReview = 0;
-        //bool inabilitar_siguiente = false;			//ESTA HAY QUE DESCOMENTAR
+
         while (std::getline(trainFile, line)) {
         	nroReview++;
 			// Shinglize el texto:
@@ -87,7 +104,6 @@ void Perceptron::entrenar(int iterations) {
 			// Calculo el producto de W x Shingles
 			int product = 0;
 			std::vector<std::string>::iterator itShingles;
-			//inabilitar_siguiente = false;
 			for (itShingles = simpleShingles.begin(); itShingles != simpleShingles.end(); ++itShingles) {
 
 				std::string word = (*itShingles);
@@ -100,27 +116,15 @@ void Perceptron::entrenar(int iterations) {
 						product += W[twoWord];
 					}
 				}
-				/*if (itShingles + 1 != simpleShingles.end()) {
-					std::string twoWord = (*itShingles) + " " + (*(itShingles + 1));
-					if (W.count(twoWord) != 0) {
-						product += W[twoWord];
-						inabilitar_siguiente = true;
-
-					} else if (!inabilitar_siguiente){
-						std::string word = (*itShingles);
-						if (W.count(word) != 0) {
-							product += W[word];
-						}
-					} else {
-						inabilitar_siguiente = false;
+				if ((itShingles + 2 != simpleShingles.end()) and (itShingles + 1 != simpleShingles.end())) {
+					std::string threeWord = (*itShingles) + " " + (*(itShingles + 1)) + " " + (*(itShingles + 2));
+					if (W.count(threeWord) != 0) {
+						product += W[threeWord];
 					}
-				}*/
+				}
 			}
 			sentimentText = line.substr(line.find('\t') + 1, 1);
 			sentiment = atoi(sentimentText.c_str());
-			//printf("Nro Review: %d\n",nroReview);
-			//printf("Sentiment: %d\n",sentiment);
-			//printf("Product: %d\n",product);
 
 			// Actualizo W en caso que no haya calificado bien.
 			if ((sentiment == 0 and product > 0) or (sentiment == 1 and product <= 0)) {
@@ -131,7 +135,7 @@ void Perceptron::entrenar(int iterations) {
 				} else {
 					recalculate = -1;
 				}
-				//inabilitar_siguiente = false;
+
 				// Recalculo W
 				for (itShingles = simpleShingles.begin(); itShingles != simpleShingles.end(); ++itShingles) {
 					std::string word = (*itShingles);
@@ -144,21 +148,12 @@ void Perceptron::entrenar(int iterations) {
 							W[twoWord] += recalculate;
 						}
 					}
-					/*if (itShingles + 1 != simpleShingles.end()) {
-						std::string twoWord = (*itShingles) + " " + (*(itShingles + 1));
-						if (W.count(twoWord) != 0) {
-							W[twoWord] += recalculate;
-							inabilitar_siguiente = true;
-
-						} else if (!inabilitar_siguiente){
-							std::string word = (*itShingles);
-							if (W.count(word) != 0) {
-								W[word] += recalculate;
-							}
-						} else {
-							inabilitar_siguiente = false;
+					if ((itShingles + 2 != simpleShingles.end()) and (itShingles + 1 != simpleShingles.end())) {
+						std::string threeWord = (*itShingles) + " " + (*(itShingles + 1)) + " " + (*(itShingles + 2));
+						if (W.count(threeWord) != 0) {
+							W[threeWord] += recalculate;
 						}
-					}*/
+					}
 				}
 			}
         }
@@ -188,12 +183,11 @@ void Perceptron::calificar(const std::string& testFilename,
 		review = line.substr(line.find('\t') + 1);
 		Misc::processText(review);
 		Misc::removeStopwords(review);
-		//reviewShingles = shinglize(review);
 		reviewSimpleShingles = Misc::split(review);
 
 		// Procesado de review (multiplicacion de reviewSingles x W):
 		//	(1) Obtengo el producto:
-		//bool inabilitar_siguiente = false;
+
 		int product = 0;
 		std::vector<std::string>::iterator itShingles;
 		for (itShingles = reviewSimpleShingles.begin(); itShingles != reviewSimpleShingles.end(); ++itShingles) {
@@ -207,23 +201,12 @@ void Perceptron::calificar(const std::string& testFilename,
 					product += W[twoWord];
 				}
 			}
-			/*if (itShingles + 1 != reviewSimpleShingles.end()) {
-				std::string twoWord = (*itShingles) + " " + (*(itShingles + 1));
-				if (W.count(twoWord) != 0) {
-					product += W[twoWord];
-					inabilitar_siguiente = true;
-
-				} else if (!inabilitar_siguiente){
-					std::string word = (*itShingles);
-					if (W.count(word) != 0) {
-						product += W[word];
-					}
-				} else {
-					inabilitar_siguiente = false;
+			if ((itShingles + 2 != reviewSimpleShingles.end()) and (itShingles + 1 != reviewSimpleShingles.end())) {
+				std::string threeWord = (*itShingles) + " " + (*(itShingles + 1)) + " " + (*(itShingles + 2));
+				if (W.count(threeWord) != 0) {
+					product += W[threeWord];
 				}
-			}*/
-
-
+			}
 		}
 		//	(2) Actualizo productos maximos y minimos para luego normalizar:
 		if (minProduct > product) {

@@ -19,7 +19,7 @@ void Misc::processText(std::string& text) {
 			// Tag de HTML encontrado
 			int itPos = std::distance(text.begin(), it);
 			int closeTagPos = text.find('>', itPos);
-			text.erase(itPos, closeTagPos - itPos + 1);
+			text.replace(itPos, closeTagPos - itPos + 1, " ");
 		} else if (esPuntuacion(*it)) {
 			text.erase(it);
 		} else {
@@ -128,9 +128,3 @@ void Misc::loadStopwords() {
 		stopwords.push_back(stopword);
 	}
 }
-
-
-
-
-
-

@@ -14,7 +14,8 @@ class Perceptron
 		Perceptron(const std::string &filename,
 				   const std::string &oneWordsDoc,
 				   const std::string &twoWordsDoc,
-				   int n=2,
+				   const std::string &threeWordsDoc,
+				   int n=3,
 				   bool preprocesado = true);
 		virtual ~Perceptron();
 
@@ -29,6 +30,7 @@ class Perceptron
 		std::string labeledFile;
 		std::ifstream oneWordFile;
 		std::ifstream twoWordFile;
+		std::ifstream threeWordFile;
 		std::map<std::string, int > W;
 
 		/** Dado un texto lo convierte en un vector de shingles.

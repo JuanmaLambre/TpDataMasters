@@ -14,8 +14,8 @@ int main(int argc, char** argv)
 	} else {
 		std::cout << "Iteraciones por default: 1\n";
 	}
-	//Misc::limpiarLabeled("../labeledTrainData.tsv", "../cleanLabeled.tsv");
-	Perceptron perceptron("cleanLabeled.tsv", "OneWordsFrequency.tsv","TwoWordsFrequency.tsv");
+	//Misc::limpiarLabeled("labeledTrainData.tsv", "cleanLabeled.tsv");
+	Perceptron perceptron("cleanLabeled.tsv", "OneWordsFrequency.tsv","TwoWordsFrequency.tsv", "ThreeWordsFrequency.tsv");
 	perceptron.entrenar(iteraciones);
 	perceptron.calificar("testData.tsv", "results_perceptron.csv");
 
