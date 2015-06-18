@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <iostream>
 
-#define STOPWORDS_FILENAME "stopWords"
+#define STOPWORDS_FILENAME "extra/stopWords"
 
 std::vector<std::string> Misc::stopwords;
 
@@ -19,7 +19,7 @@ void Misc::processText(std::string& text) {
 			// Tag de HTML encontrado
 			int itPos = std::distance(text.begin(), it);
 			int closeTagPos = text.find('>', itPos);
-			text.erase(itPos, closeTagPos - itPos + 1);
+			text.replace(itPos, closeTagPos - itPos + 1, " ");
 		} else if (esPuntuacion(*it)) {
 			text.erase(it);
 		} else {
@@ -99,7 +99,6 @@ void Misc::limpiarLabeled(const std::string& input, const std::string& output) {
 	std::cout << "\r100%\n";
 }
 
-
 void Misc::limpiarTest(const std::string& input, const std::string& output) {
 	std::ifstream test(input.c_str());
 	std::ofstream cleanTest(output.c_str());
@@ -107,28 +106,27 @@ void Misc::limpiarTest(const std::string& input, const std::string& output) {
 	std::vector<std::string> lineVec;
 	int bytesLeidos = 0;
 	int bytesTotales = 32724746; // Otro hardcodeadisimo
-	
+
 	std::cout << "LIMPIANDO TEST...\n";
 	// Header
 	test >> header >> header;
 	test.ignore(1, '\n');
-	
+
 	while (test.peek() != EOF) {
 		std::getline(test, line);
 		lineVec = split(line, '\t');
 		processText(lineVec[1]);
 		removeStopwords(lineVec[1]);
 		cleanTest << lineVec[0] + '\t' << lineVec[1];
-		
+
 		test.ignore(1, '\n');
 		bytesLeidos += line.size() + 1;
 		std::cout << "\r" << (int)(bytesLeidos*100.0/bytesTotales) << "%";
-		if (test.peek() != EOF) 
+		if (test.peek() != EOF)
 			cleanTest << '\n';
 	}
 	std::cout << "\r100%\n";
 }
-
 
 std::vector<std::string> Misc::split(const std::string& text,
 		const char& delimiter) {

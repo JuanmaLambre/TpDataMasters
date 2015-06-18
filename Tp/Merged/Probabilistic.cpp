@@ -6,13 +6,8 @@
 #include <fstream>
 #include <iostream>
 
-#define INF_LIMIT 0.39
-#define SUP_LIMIT 0.61
-
-
 Probabilistic::Probabilistic(int quantWordByShingle, std::vector<std::string> fileFrequencyDocumentNames, std::string trainFile) {
-	std::cout << "\n*** PROBABILISTIC ***\n";
-	std::cout << "INICIALIZANDO..." << std::endl;
+	std::cout << "INICIALIZANDO BAYES..." << std::endl;
 	this->quantWordByShingle = quantWordByShingle;
 	this->labeledFile = trainFile;
 	std::string line;
@@ -22,7 +17,7 @@ Probabilistic::Probabilistic(int quantWordByShingle, std::vector<std::string> fi
 		std::ifstream wordFile(nameFile.c_str());
 
 		std::getline(wordFile, line);
-		for(int i = 0; i < 50000; ++i) {
+		for(int i = 0; i < 80000; ++i) {
 			std::getline(wordFile, line);
 			std::string word = Misc::split(line, '\t')[0];
 			oneWordSentiment[word] = std::pair<int, int> (0, 0);
@@ -33,7 +28,7 @@ Probabilistic::Probabilistic(int quantWordByShingle, std::vector<std::string> fi
 		std::ifstream wordFile(nameFile.c_str());
 
 		std::getline(wordFile, line);
-		for(int i = 0; i < 150000; ++i) {
+		for(int i = 0; i < 650000; ++i) {
 			std::getline(wordFile, line);
 			std::string words = Misc::split(line, '\t')[0] + " " + Misc::split(line, '\t')[1];
 			twoWordSentiment[words] = std::pair<int, int> (0, 0);
@@ -44,7 +39,7 @@ Probabilistic::Probabilistic(int quantWordByShingle, std::vector<std::string> fi
 		std::ifstream wordFile(nameFile.c_str());
 
 		std::getline(wordFile, line);
-		for(int i = 0; i < 120000; ++i) {
+		for(int i = 0; i < 250000; ++i) {
 			std::getline(wordFile, line);
 			std::string words = Misc::split(line, '\t')[0] + " " + Misc::split(line, '\t')[1] + " " + Misc::split(line, '\t')[2];
 			threeWordSentiment[words] = std::pair<int, int> (0, 0);
@@ -59,7 +54,7 @@ Probabilistic::Probabilistic(int quantWordByShingle, std::vector<std::string> fi
 }
 
 void Probabilistic::entrenar() {
-	std::cout << "ENTRENANDO..." << std::endl;
+	std::cout << "ENTRENANDO BAYES..." << std::endl;
 	std::ifstream trainFile(labeledFile.c_str());
 	std::string line;
 	std::string reviewText;
@@ -73,163 +68,183 @@ void Probabilistic::entrenar() {
 		sentiment = atoi(sentimentText.c_str());
 
 		simpleShingles =  Misc::split(reviewText);
-		bool inabilitar_siguiente_one = false;
-		bool inabilitar_siguiente_two = false;
-		std::vector<std::string>::iterator itS;
-		for (itS = simpleShingles.begin(); (itS + 2) != simpleShingles.end(); ++itS) {
-			std::string threeWords = (*itS) + " " + (*(itS + 1)) + " " + (*(itS + 2));
-			if (threeWordSentiment.count(threeWords) != 0) {
-				inabilitar_siguiente_one = true;
-				inabilitar_siguiente_two = true;
-				std::pair<int, int> actualSentiment = twoWordSentiment[threeWords];
-				if (sentiment == 1) {
-					twoWordSentiment[threeWords] = std::pair<int, int> (1 + actualSentiment.first, actualSentiment.second);
-				} else {
-					twoWordSentiment[threeWords] = std::pair<int, int> (actualSentiment.first, actualSentiment.second + 1);
-				}
 
-			} else if (!inabilitar_siguiente_two) {
+		std::vector<std::string>::iterator itS;
+		for (itS = simpleShingles.begin(); itS != simpleShingles.end(); ++itS) {
+
+			if ((itS + 1) != simpleShingles.end() and (itS + 2) != simpleShingles.end()) {
+				std::string threeWords = (*itS) + " " + (*(itS + 1)) + " " + (*(itS + 2));
+				if (threeWordSentiment.count(threeWords) != 0) {
+					std::pair<int, int> actualSentiment = threeWordSentiment[threeWords];
+					if (sentiment == 1) {
+						totalPositiveThreeWord += 1;
+						threeWordSentiment[threeWords] = std::pair<int, int> (1 + actualSentiment.first, actualSentiment.second);
+					} else {
+						totalNegativeThreeWord += 1;
+						threeWordSentiment[threeWords] = std::pair<int, int> (actualSentiment.first, actualSentiment.second + 1);
+					}
+				}
+			}
+
+			if ((itS + 1) != simpleShingles.end()) {
 				std::string twoWords = (*itS) + " " + (*(itS + 1));
 				if (twoWordSentiment.count(twoWords) != 0) {
-					inabilitar_siguiente_one = true;
 					std::pair<int, int> actualSentiment = twoWordSentiment[twoWords];
 					if (sentiment == 1) {
+						totalPositiveTwoWord += 1;
 						twoWordSentiment[twoWords] = std::pair<int, int> (1 + actualSentiment.first, actualSentiment.second);
 					} else {
+						totalNegativeTwoWord += 1;
 						twoWordSentiment[twoWords] = std::pair<int, int> (actualSentiment.first, actualSentiment.second + 1);
 					}
-
-				} else if(!inabilitar_siguiente_one) {
-					std::string word = (*itS);
-					if (oneWordSentiment.count(word) != 0) {
-						std::pair<int, int> actualSentiment = oneWordSentiment[word];
-						if (sentiment == 1) {
-							oneWordSentiment[word] = std::pair<int, int> (1 + actualSentiment.first, actualSentiment.second);
-						} else {
-							oneWordSentiment[word] = std::pair<int, int> (actualSentiment.first, actualSentiment.second + 1);
-						}
-					}
-
-				} else {
-					inabilitar_siguiente_one = false;
 				}
-
-			} else {
-				inabilitar_siguiente_two = false;
-				inabilitar_siguiente_one = false;
+			}
+			std::string word = (*itS);
+			if (oneWordSentiment.count(word) != 0) {
+				std::pair<int, int> actualSentiment = oneWordSentiment[word];
+				if (sentiment == 1) {
+					totalPositiveOneWord += 1;
+					oneWordSentiment[word] = std::pair<int, int> (1 + actualSentiment.first, actualSentiment.second);
+				} else {
+					totalNegativeOneWord += 1;
+					oneWordSentiment[word] = std::pair<int, int> (actualSentiment.first, actualSentiment.second + 1);
+				}
 			}
 		}
 		std::cout << "\r" << (int)(++iteracion*100.0/25000) << '%';
 	}
-	std::cout << std::endl;
+	std::cout << "\n";
 }
 
-void Probabilistic::calificar(ReviewsList& reviews, std::ofstream& results) {
-	std::cout << "CALIFICANDO..." << std::endl;
+void Probabilistic::calificar(const std::string& inputFilename) {
+	std::cout << "CALIFICANDO BAYES..." << std::endl;
+	std::ifstream testFile(inputFilename.c_str());
+	std::string line;
+	std::string review;
 	std::vector<std::string> simpleShingles;
-	int iteracion = 0, cantBorrados = 0;
-	int divisorBayesianoPos = twoWordSentiment.size() + oneWordSentiment.size() + totalPositiveOneWord + totalPositiveTwoWord;
-	int divisorBayesianoNeg = twoWordSentiment.size() + oneWordSentiment.size() + totalNegativeOneWord + totalNegativeTwoWord;
+	int iteracion = 0;
 
-	ReviewsList::iterator reviewIt = reviews.begin();
-	while(reviewIt != reviews.end()) {
+	std::getline(testFile, line);
+	while(std::getline(testFile, line)) {
 		float probStandarMethod = 0;
 		int divisorStandarMethod = 0;
-		float probBayesianMethodPos = 1;
-		float probBayesianMethodNeg = 1;
+		double probBayesianMethodPos = 0;
+		double probBayesianMethodNeg = 0;
 
-		simpleShingles =  Misc::split( (*reviewIt)[1] );
+		review = line.substr(line.find('\t') + 1);
+		Misc::processText(review);
+		Misc::removeStopwords(review);
+		simpleShingles =  Misc::split(review);
 
-		bool inabilitar_siguiente_one = false;
-		bool inabilitar_siguiente_two = false;
-		bool inabilitar_actual_one = false;
-		bool inabilitar_actual_two = false;
 		float positive = 0;
 		float negative = 0;
 		std::vector<std::string>::iterator itS;
-		for (itS = simpleShingles.begin(); (itS + 2) != simpleShingles.end(); ++itS) {
-			std::string threeWords = (*itS) + " " + (*(itS + 1)) + " " + (*(itS + 2));
-			if (threeWordSentiment.count(threeWords) != 0) {
-				positive = twoWordSentiment[threeWords].first;
-				negative = twoWordSentiment[threeWords].second;
+		for (itS = simpleShingles.begin(); itS != simpleShingles.end(); ++itS) {
+			if ((itS + 1) != simpleShingles.end() and (itS + 2) != simpleShingles.end()) {
+				std::string threeWords = (*itS) + " " + (*(itS + 1)) + " " + (*(itS + 2));
+				if (threeWordSentiment.count(threeWords) != 0) {
+					positive = threeWordSentiment[threeWords].first;
+					negative = threeWordSentiment[threeWords].second;
+					int divisorBayesianoPos = threeWordSentiment.size() + totalPositiveThreeWord;
+					int divisorBayesianoNeg = threeWordSentiment.size() + totalNegativeThreeWord;
+					if (positive != 0 or negative != 0) {
+						// Calculamos por el Metodo Standar
+						probStandarMethod += (positive / (positive + negative));
+						divisorStandarMethod += 1;
+
+						// Calculamos por el Metodo Bayesiano
+						probBayesianMethodPos += log((positive + 1) / divisorBayesianoPos);
+						probBayesianMethodNeg += log((negative + 1) / divisorBayesianoNeg);
+
+					}
+				}
+			}
+
+			if ((itS + 1) != simpleShingles.end()) {
+				std::string twoWords = (*itS) + " " + (*(itS + 1));
+
+				if (twoWordSentiment.count(twoWords) != 0) {
+					positive = twoWordSentiment[twoWords].first;
+					negative = twoWordSentiment[twoWords].second;
+					int divisorBayesianoPos = twoWordSentiment.size() + totalPositiveTwoWord;
+					int divisorBayesianoNeg = twoWordSentiment.size() + totalNegativeTwoWord;
+
+					if (positive != 0 or negative != 0) {
+						// Calculamos por el Metodo Standar
+						probStandarMethod += (positive / (positive + negative));
+						divisorStandarMethod += 1;
+
+						// Calculamos por el Metodo Bayesiano
+						probBayesianMethodPos += log((positive + 1) / divisorBayesianoPos);
+						probBayesianMethodNeg += log((negative + 1) / divisorBayesianoNeg);
+
+					}
+				}
+			}
+
+			std::string word = (*itS);
+			if (oneWordSentiment.count(word) != 0) {
+				positive = oneWordSentiment[word].first;
+				negative = oneWordSentiment[word].second;
+				int divisorBayesianoPos = oneWordSentiment.size() + totalPositiveOneWord;
+				int divisorBayesianoNeg = oneWordSentiment.size() + totalNegativeOneWord;
+
 				if (positive != 0 or negative != 0) {
-					inabilitar_siguiente_two = true;
-				} else {
-					inabilitar_actual_two = false;
-				}
+					// Calculamos por el Metodo Standar
+					probStandarMethod += (positive / (positive + negative));
+					divisorStandarMethod += 1;
 
-			} else {
-				inabilitar_actual_two = false;
-			}
-
-			if (!inabilitar_actual_two) {
-				if (!inabilitar_siguiente_two) {
-					std::string twoWords = (*itS) + " " + (*(itS + 1));
-
-					if (twoWordSentiment.count(twoWords) != 0) {
-						positive = twoWordSentiment[twoWords].first;
-						negative = twoWordSentiment[twoWords].second;
-
-						if (positive != 0 or negative != 0) {
-							inabilitar_siguiente_one = true;
-						} else {
-							inabilitar_actual_one = false;
-						}
-
-					} else {
-						inabilitar_actual_one = false;
-					}
-
-					if(!inabilitar_actual_one) {
-						if (!inabilitar_siguiente_one) {
-							std::string word = (*itS);
-							if (oneWordSentiment.count(word) != 0) {
-								positive = oneWordSentiment[word].first;
-								negative = oneWordSentiment[word].second;
-							}
-						} else {
-							inabilitar_siguiente_one = false;
-						}
-					}
-
-				} else {
-					inabilitar_siguiente_two = false;
-				}
-			}
-
-			if (positive != 0 or negative != 0) {
-				// Calculamos por el Metodo Standar
-				probStandarMethod += (positive / (positive + negative));
-				divisorStandarMethod += 1;
-
-				// Calculamos por el Metodo Bayesiano
-				probBayesianMethodPos *= ((positive + 1) / divisorBayesianoPos);
-				probBayesianMethodNeg *= ((negative + 1) / divisorBayesianoNeg);
-
-				if (probBayesianMethodPos < pow(10,-100) or probBayesianMethodNeg < pow(10,-100)){
-					probBayesianMethodPos *= pow(10,100);
-					probBayesianMethodNeg *= pow(10,100);
+					// Calculamos por el Metodo Bayesiano
+					probBayesianMethodPos += log((positive + 1) / divisorBayesianoPos);
+					probBayesianMethodNeg += log((negative + 1) / divisorBayesianoNeg);
 				}
 			}
 		}
-		
-		float prediction;
+		std::string id = line.substr(0, line.find('\t'));
+
+
+		probBayesianMethodPos += log(0.5);
+		probBayesianMethodNeg += log(0.5);
+
+
+		/*if (probBayesianMethodPos != 0 and probBayesianMethodNeg != 0) {
+			double diference = probBayesianMethodPos - probBayesianMethodNeg;
+			double probPos = (exp (diference) / (1 + exp(diference)));
+			std::string sentimentText = line.substr(line.find('\t') + 1, 1);
+			int sentiment = atoi(sentimentText.c_str());
+
+			if ((0.9999999999999999 < probPos and probPos < 1) or (0 < probPos and probPos < 0.0000000000000001)) {
+				cantidadReviewsCalificadas++;
+
+				if ((sentiment == 1 and probPos > 0.5) or (sentiment == 0 and probPos < 0.5 )) {
+					cantidadReviewsCalificadasBien++;
+				}
+			}
+
+			//results << probPos << '\n';
+		}*/
+
 		if (divisorStandarMethod != 0) {
-			prediction = float(probStandarMethod / divisorStandarMethod);
-		} else {
-			prediction = float(probBayesianMethodPos / (probBayesianMethodPos + probBayesianMethodNeg));
+			float probPos = probStandarMethod / divisorStandarMethod;
+			califications[id] = probPos;
 		}
-		
-		if (prediction <= INF_LIMIT || prediction >= SUP_LIMIT) {
-			results << (*reviewIt)[0] << ',' << prediction << std::endl;
-			reviews.erase(reviewIt++);
-			cantBorrados++;
-		} else {
-			++reviewIt;
-		}
+
 		std::cout << "\r" << (int)(++iteracion*100.0/25000) << '%';
 	}
-	std::cout << std::endl;
-	std::cout << "Rango: (" << INF_LIMIT << " - " << SUP_LIMIT << ")\n";
-	std::cout << "#Calificados: " << cantBorrados << std::endl;
+	std::cout << "\n";
+	testFile.close();
 }
+
+float Probabilistic::getReviewProba(const std::string& id) {
+	if (califications.count(id) != 0) {
+		return califications[id];
+	} else {
+		return -1;
+	}
+}
+
+// STANDARD
+
+// (0.55 < probPos and probPos < 1) or (0 < probPos and probPos < 0.45) ==>	2700 con 97.2%. 60k, 650k, 250k
+// (0.59 < probPos and probPos < 1) or (0 < probPos and probPos < 0.41) ==> 1100 con 98.8%, 60k, 650k, 250k
+// (0.575 < probPos and probPos < 1) or (0 < probPos and probPos < 0.425) ==> 1500 con 98.7, 80k, 650k, 250k

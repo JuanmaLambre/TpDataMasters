@@ -6,7 +6,6 @@
 #include <map>
 #include <list>
 #include <fstream>
-#include "definitions.h"
 
 
 class Perceptron
@@ -15,13 +14,17 @@ class Perceptron
 		Perceptron(const std::string &filename,
 				   const std::string &oneWordsDoc,
 				   const std::string &twoWordsDoc,
+				   const std::string &threeWordsDoc,
 				   int n=3,
-				   bool preprocesado=true);
+				   bool preprocesado = true);
+		virtual ~Perceptron();
 
 		/** Entrena a Perceptron con shingles de multiplicidad n (ver ctor) **/
 		void entrenar(int iterations);
 
-		void calificar(ReviewsList& reviews, std::ofstream& output);
+		void calificar(const std::string& input);
+
+		float getReviewProba(const std::string& id);
 
 	private:
 		bool textoPreprocesado;
@@ -31,6 +34,7 @@ class Perceptron
 		std::ifstream twoWordFile;
 		std::ifstream threeWordFile;
 		std::map<std::string, int > W;
+		std::map<std::string, float> califications;
 
 		/** Dado un texto lo convierte en un vector de shingles.
 			PRE: El texto ya esta preprocesado**/

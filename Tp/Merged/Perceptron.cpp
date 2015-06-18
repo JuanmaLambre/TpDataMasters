@@ -13,13 +13,11 @@
 Perceptron::Perceptron(const std::string &filename,
 					   const std::string &oneWordsDoc,
 					   const std::string &twoWordsDoc,
+					   const std::string &threeWordsDoc,
 					   int n,
 					   bool preprocesado)
-		: oneWordFile(oneWordsDoc.c_str()),
-		twoWordFile(twoWordsDoc.c_str())
-{		
-	std::cout << "\n*** PERCEPTRON ***\n";
-	std::cout << "INICIALIZANDO..." << std::endl;
+		:oneWordFile(oneWordsDoc.c_str()), twoWordFile(twoWordsDoc.c_str()), threeWordFile(threeWordsDoc.c_str()){
+	std::cout << "INICIALIZANDO PERCEPTRON..." << std::endl;
 	Misc misc;
 	labeledFile = filename;
 	textoPreprocesado = preprocesado;
@@ -30,46 +28,49 @@ Perceptron::Perceptron(const std::string &filename,
 
 		// Considerando 1 palabra
 		std::getline(oneWordFile, line);
-		for(int i = 0; i < 102707; ++i) {
+		for(int i = 0; i < 123391; ++i) {
 			std::getline(oneWordFile, line);
 			std::string word = misc.split(line, '\t')[0];
-			float random = (rand() % 10) - 5;
-			W[word] = random;
+			//float random = (rand() % 10) - 5;
+			W[word] = 0;
 		}
 
 		// Considerando 2 palabras
 		if (n >= 2) {
 			getline(twoWordFile, line);
-			for(int i = 0; i < 3100000; ++i) {
-				getline(twoWordFile, line);	
+			for(int i = 0; i < 3107167; ++i) {
+				getline(twoWordFile, line);
 				std::string word1 = misc.split(line, '\t')[0];
 				std::string word2 = misc.split(line, '\t')[1];
-				float random = (rand() % 10) - 5;
-				W[word1 + " " + word2] = random;
+				//float random = (rand() % 10) - 5;
+				W[word1 + " " + word2] = 0;
 			}
 		}
 
-		// Considerando 3 
-		/*if (n >= 3)) {
+		// Considerando 3 palabras
+		if (n >= 3) {
 			getline(threeWordFile, line);
-			for(int i = 0; i < 5636985; ++i) {
+			for(int i = 0; i < 5546399; ++i) {
 				getline(threeWordFile, line);
 				std::string word1 = misc.split(line, '\t')[0];
 				std::string word2 = misc.split(line, '\t')[1];
 				std::string word3 = misc.split(line, '\t')[2];
-				float random = (rand() % 10) - 5;
-				W[word1 + " " + word2 + " " + word3] = random;
+				//float random = (rand() % 10) - 5;
+				W[word1 + " " + word2 + " " + word3] = 0;
 			}
-		}*/
+		}
 	}
 	oneWordFile.close();
 	twoWordFile.close();
 	threeWordFile.close();
 }
 
+Perceptron::~Perceptron(){
+
+}
 
 void Perceptron::entrenar(int iterations) {
-	std::cout << "ENTRENANDO..." << std::endl;
+	std::cout << "ENTRENANDO PERCEPTRON..." << std::endl;
 	std::string line, header;
 	float iteracion = 0;
 	int errors = 25000;
@@ -89,7 +90,7 @@ void Perceptron::entrenar(int iterations) {
         int sentiment;
         std::vector<std::string> simpleShingles;
         int nroReview = 0;
-
+        //bool inabilitar_siguiente = false;			//ESTA HAY QUE DESCOMENTAR
         while (std::getline(trainFile, line)) {
         	nroReview++;
 			// Shinglize el texto:
@@ -103,6 +104,7 @@ void Perceptron::entrenar(int iterations) {
 			// Calculo el producto de W x Shingles
 			int product = 0;
 			std::vector<std::string>::iterator itShingles;
+			//inabilitar_siguiente = false;
 			for (itShingles = simpleShingles.begin(); itShingles != simpleShingles.end(); ++itShingles) {
 
 				std::string word = (*itShingles);
@@ -124,6 +126,9 @@ void Perceptron::entrenar(int iterations) {
 			}
 			sentimentText = line.substr(line.find('\t') + 1, 1);
 			sentiment = atoi(sentimentText.c_str());
+			//printf("Nro Review: %d\n",nroReview);
+			//printf("Sentiment: %d\n",sentiment);
+			//printf("Product: %d\n",product);
 
 			// Actualizo W en caso que no haya calificado bien.
 			if ((sentiment == 0 and product > 0) or (sentiment == 1 and product <= 0)) {
@@ -134,7 +139,7 @@ void Perceptron::entrenar(int iterations) {
 				} else {
 					recalculate = -1;
 				}
-
+				//inabilitar_siguiente = false;
 				// Recalculo W
 				for (itShingles = simpleShingles.begin(); itShingles != simpleShingles.end(); ++itShingles) {
 					std::string word = (*itShingles);
@@ -157,35 +162,35 @@ void Perceptron::entrenar(int iterations) {
 			}
         }
         trainFile.close();
-        std::cout << "\r" << iteracion*100.0/iterations<< "% - "
-        		<< errors << " errores   ";
-        std::cout.flush();
+        std::cout << "Iteracion: " << iteracion << " Cant Errores: " << errors << std::endl;
 	}
-	
-	if (errors == 0) {
-		std::cout << "\r100% - 0 errores";
-	}
-	std::cout << std::endl;
 
 }
 
 
-void Perceptron::calificar(ReviewsList& reviews, std::ofstream& results) {
+void Perceptron::calificar(const std::string& testFilename) {
+	std::ifstream testFile(testFilename.c_str());
+
 	std::string id, review, header, line;
 	std::vector<std::string> reviewSimpleShingles;
 	std::map<std::string, int> idProduct;
 	int iteracion = 0, maxProduct = 0, minProduct = 0;
 
-    std::cout << "CALIFICANDO...\n";
+    std::cout << "CALIFICANDO PERCEPTRON...\n";
 
-	ReviewsList::iterator reviewIt = reviews.begin();
-	for (;reviewIt != reviews.end(); ++reviewIt) {
-		id = (*reviewIt)[0];
-		reviewSimpleShingles = Misc::split( (*reviewIt)[1] );
+	std::getline(testFile, line);
+	while (std::getline(testFile, line)) {
+		// Preprocesado del review:
+		id = line.substr(0, line.find('\t'));
+		review = line.substr(line.find('\t') + 1);
+		Misc::processText(review);
+		Misc::removeStopwords(review);
+		//reviewShingles = shinglize(review);
+		reviewSimpleShingles = Misc::split(review);
 
 		// Procesado de review (multiplicacion de reviewSingles x W):
 		//	(1) Obtengo el producto:
-
+		//bool inabilitar_siguiente = false;
 		int product = 0;
 		std::vector<std::string>::iterator itShingles;
 		for (itShingles = reviewSimpleShingles.begin(); itShingles != reviewSimpleShingles.end(); ++itShingles) {
@@ -205,6 +210,7 @@ void Perceptron::calificar(ReviewsList& reviews, std::ofstream& results) {
 					product += W[threeWord];
 				}
 			}
+
 		}
 		//	(2) Actualizo productos maximos y minimos para luego normalizar:
 		if (minProduct > product) {
@@ -219,13 +225,20 @@ void Perceptron::calificar(ReviewsList& reviews, std::ofstream& results) {
 	}
 	std::map<std::string, int>::iterator itIds;
 	for (itIds = idProduct.begin(); itIds != idProduct.end(); ++itIds ) {
-		results << (*itIds).first + ',';
-		results << float(((*itIds).second - minProduct)) / float((maxProduct - minProduct)) << '\n';
+		califications[(*itIds).first] = float(((*itIds).second - minProduct)) / float((maxProduct - minProduct));
 	}
 
 	std::cout << "\r100%\n";
+	testFile.close();
 }
 
+float Perceptron::getReviewProba(const std::string& id) {
+	if (califications.count(id) != 0) {
+		return califications[id];
+	} else {
+		return -1;
+	}
+}
 
 /******************************* PRIVATE *************************************/
 
