@@ -6,8 +6,8 @@
 #include <fstream>
 #include <iostream>
 
-#define INF_LIMIT 0.40
-#define SUP_LIMIT 0.60
+#define INF_LIMIT 0.39
+#define SUP_LIMIT 0.61
 
 
 Probabilistic::Probabilistic(int quantWordByShingle, std::vector<std::string> fileFrequencyDocumentNames, std::string trainFile) {

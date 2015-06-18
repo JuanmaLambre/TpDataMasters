@@ -20,7 +20,7 @@ private:
 	std::map<std::string, std::pair<int, int> > threeWordSentiment;
 public:
 	Probabilistic(int quantWordByShingle, std::vector<std::string> fileFrequencyDocumentNames, std::string trainFile);
-	~Probabilistic() { std::cout << std::endl; }
+	~Probabilistic() { std::cout << std::endl; };
 
 	void entrenar();
 
