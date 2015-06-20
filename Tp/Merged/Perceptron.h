@@ -15,7 +15,7 @@ class Perceptron
 				   const std::string &oneWordsDoc,
 				   const std::string &twoWordsDoc,
 				   const std::string &threeWordsDoc,
-				   int n=3,
+				   int n = 3,
 				   bool preprocesado = true);
 		virtual ~Perceptron();
 

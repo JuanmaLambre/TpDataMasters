@@ -27,8 +27,7 @@ Perceptron::Perceptron(const std::string &filename,
 		std::string line;
 
 		// Considerando 1 palabra
-		std::getline(oneWordFile, line);
-		for(int i = 0; i < 123391; ++i) {
+		for(int i = 0; i < 167418; ++i) {
 			std::getline(oneWordFile, line);
 			std::string word = misc.split(line, '\t')[0];
 			//float random = (rand() % 10) - 5;
@@ -37,26 +36,31 @@ Perceptron::Perceptron(const std::string &filename,
 
 		// Considerando 2 palabras
 		if (n >= 2) {
-			getline(twoWordFile, line);
-			for(int i = 0; i < 3107167; ++i) {
+			for(int i = 0; i < 3200878; ++i) {
 				getline(twoWordFile, line);
-				std::string word1 = misc.split(line, '\t')[0];
-				std::string word2 = misc.split(line, '\t')[1];
-				//float random = (rand() % 10) - 5;
-				W[word1 + " " + word2] = 0;
+				std::string words = misc.split(line, '\t')[0];
+				if ((int)misc.split(words, ' ').size() == 2) {
+					std::string word1 = misc.split(words, ' ')[0];
+					std::string word2 = misc.split(words, ' ')[1];
+					//float random = (rand() % 10) - 5;
+					W[word1 + " " + word2] = 0;
+				}
 			}
 		}
 
 		// Considerando 3 palabras
 		if (n >= 3) {
-			getline(threeWordFile, line);
-			for(int i = 0; i < 5546399; ++i) {
+			printf("3 \n");
+			for(int i = 0; i < 5719340; ++i) {
 				getline(threeWordFile, line);
-				std::string word1 = misc.split(line, '\t')[0];
-				std::string word2 = misc.split(line, '\t')[1];
-				std::string word3 = misc.split(line, '\t')[2];
-				//float random = (rand() % 10) - 5;
-				W[word1 + " " + word2 + " " + word3] = 0;
+				std::string words = misc.split(line, '\t')[0];
+				if ((int)misc.split(words, ' ').size() == 3) {
+					std::string word1 = misc.split(words, ' ')[0];
+					std::string word2 = misc.split(words, ' ')[1];
+					std::string word3 = misc.split(words, ' ')[2];
+					//float random = (rand() % 10) - 5;
+					W[word1 + " " + word2 + " " + word3] = 0;
+				}
 			}
 		}
 	}

@@ -10,8 +10,8 @@
 #include "Perceptron.h"
 using namespace std;
 
-#define INF_LIMIT 0.425
-#define SUP_LIMIT 0.575
+#define INF_LIMIT 0.435
+#define SUP_LIMIT 0.565
 
 int main(int argc, char** argv)
 {
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
 	Probabilistic proba(3, fileFrequencyDocumentNames, "./extra/cleanLabeled.tsv");
 	proba.entrenar();
 	proba.calificar("extra/testData.tsv");
-	
+
 	// Perceptron:
 	Perceptron perceptron("extra/cleanLabeled.tsv", "extra/OneWordsFrequency.tsv","extra/TwoWordsFrequency.tsv","extra/ThreeWordsFrequency.tsv");
 	perceptron.entrenar(iteraciones);
@@ -50,6 +50,7 @@ int main(int argc, char** argv)
 		std::string id = line.substr(0, line.find('\t'));
 		float probRev;
 		probRev = proba.getReviewProba(id);
+
 
 		if (probRev != -1 and ((SUP_LIMIT < probRev) or (probRev < INF_LIMIT))) {
 			results << id << "," << probRev << "\n";

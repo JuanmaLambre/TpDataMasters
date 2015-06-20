@@ -16,33 +16,45 @@ Probabilistic::Probabilistic(int quantWordByShingle, std::vector<std::string> fi
 		std::string nameFile = fileFrequencyDocumentNames[0];
 		std::ifstream wordFile(nameFile.c_str());
 
-		std::getline(wordFile, line);
-		for(int i = 0; i < 80000; ++i) {
+		for(int i = 0; i < 75000; ++i) {
 			std::getline(wordFile, line);
-			std::string word = Misc::split(line, '\t')[0];
-			oneWordSentiment[word] = std::pair<int, int> (0, 0);
+			std::string words = Misc::split(line, '\t')[0];
+			if ((int)Misc::split(words, ' ').size() == 1) {
+				std::string word = Misc::split(words, ' ')[0];
+				oneWordSentiment[word] = std::pair<int, int> (0, 0);
+			}
 		}
 	}
 	if (quantWordByShingle >= 2) {					// Shingle de 2 palabra
 		std::string nameFile = fileFrequencyDocumentNames[1];
 		std::ifstream wordFile(nameFile.c_str());
 
-		std::getline(wordFile, line);
-		for(int i = 0; i < 650000; ++i) {
+		for(int i = 0; i < 320000; ++i) {
+
 			std::getline(wordFile, line);
-			std::string words = Misc::split(line, '\t')[0] + " " + Misc::split(line, '\t')[1];
-			twoWordSentiment[words] = std::pair<int, int> (0, 0);
+			std::string words = Misc::split(line, '\t')[0];
+
+			if ((int)Misc::split(words, ' ').size() == 2) {
+				std::string word1 = Misc::split(words, ' ')[0];
+				std::string word2 = Misc::split(words, ' ')[1];
+				twoWordSentiment[word1 + " " + word2] = std::pair<int, int> (0, 0);
+			}
 		}
 	}
 	if (quantWordByShingle >= 3) {					// Shingle de 3 palabra
+		printf("3\n");
 		std::string nameFile = fileFrequencyDocumentNames[2];
 		std::ifstream wordFile(nameFile.c_str());
 
-		std::getline(wordFile, line);
-		for(int i = 0; i < 250000; ++i) {
+		for(int i = 0; i < 82000; ++i) {
 			std::getline(wordFile, line);
-			std::string words = Misc::split(line, '\t')[0] + " " + Misc::split(line, '\t')[1] + " " + Misc::split(line, '\t')[2];
-			threeWordSentiment[words] = std::pair<int, int> (0, 0);
+			std::string words = Misc::split(line, '\t')[0];
+			if ((int)Misc::split(words, ' ').size() == 3) {
+				std::string word1 = Misc::split(words, ' ')[0];
+				std::string word2 = Misc::split(words, ' ')[1];
+				std::string word3 = Misc::split(words, ' ')[2];
+				threeWordSentiment[word1 + " " + word2 + " " + word3] = std::pair<int, int> (0, 0);
+			}
 		}
 	}
 	totalPositiveOneWord = 0;
@@ -248,3 +260,7 @@ float Probabilistic::getReviewProba(const std::string& id) {
 // (0.55 < probPos and probPos < 1) or (0 < probPos and probPos < 0.45) ==>	2700 con 97.2%. 60k, 650k, 250k
 // (0.59 < probPos and probPos < 1) or (0 < probPos and probPos < 0.41) ==> 1100 con 98.8%, 60k, 650k, 250k
 // (0.575 < probPos and probPos < 1) or (0 < probPos and probPos < 0.425) ==> 1500 con 98.7, 80k, 650k, 250k
+
+// (0.55 < probPos and probPos < 1) or (0 < probPos and probPos < 0.45) ==>	2550 con 97.88%. 75k, 320k, 82k
+// (0.59 < probPos and probPos < 1) or (0 < probPos and probPos < 0.41) ==> 950 con 99%, 75k, 320k, 82k
+// (0.575 < probPos and probPos < 1) or (0 < probPos and probPos < 0.425) ==> 1450 con 98.95, 75k, 320k, 82k
