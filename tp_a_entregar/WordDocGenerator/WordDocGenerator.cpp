@@ -10,6 +10,7 @@ void WordDocGenerator::generateFrequencyDocument(int cantShingles, std::string l
 
     // CALCULAMOS LAS FRECUENCIAS DEL LABEL
     int iteracion = 0;
+    std::cout << "PROCESSING " + label << '\n';
     while (std::getline(trainFile, line)) {
 
   	   // Shinglize el texto:
@@ -56,12 +57,14 @@ void WordDocGenerator::generateFrequencyDocument(int cantShingles, std::string l
 		}
 		std::cout << "\r" << (int)(++iteracion*100.0/25000) << '%';
 	}
+	std::cout << std::endl;
     trainFile.close();
 
 
 	std::ifstream testFile;
 	testFile.open(test.c_str());
 	iteracion = 0;
+	std::cout << "PROCESSING " + test << '\n';
     while (std::getline(testFile, line)) {
 
   	   // Shinglize el texto:
@@ -103,6 +106,7 @@ void WordDocGenerator::generateFrequencyDocument(int cantShingles, std::string l
 		}
 		std::cout << "\r" << (int)(++iteracion*100.0/25000) << '%';
 	}
+	std::cout << std::endl;
     testFile.close();
 
     std::ofstream oneDoc("OneWordsFrequency.tsv");
@@ -112,6 +116,8 @@ void WordDocGenerator::generateFrequencyDocument(int cantShingles, std::string l
     std::set< std::pair<int, std::string> > threeInverse;
     std::set< std::pair<int, std::string> > twoInverse;
     std::set< std::pair<int, std::string> > oneInverse;
+
+    std::cout << "FINALIZING...\n";
 
     std::map<std::string, int >::iterator it;
     for (it = oneWordFrequency.begin(); it != oneWordFrequency.end(); ++it) {

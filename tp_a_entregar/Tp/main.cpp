@@ -5,7 +5,6 @@
 #include <fstream>
 #include <cstdlib>
 #include "Misc.h"
-#include "definitions.h"
 #include "Probabilistic.h"
 #include "Perceptron.h"
 using namespace std;
@@ -45,7 +44,6 @@ int main(int argc, char** argv) {
 	// Decidimos que probabilidad vamos a utilizar para calificar a la review.
 	ifstream test("extra/testData.tsv");
 	string line;
-	int CantidadCalificadaPorProba = 0;
 	getline(test, line);
 	while (getline(test, line)) {
 		std::string id = line.substr(0, line.find('\t'));

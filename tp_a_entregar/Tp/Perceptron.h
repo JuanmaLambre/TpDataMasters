@@ -17,7 +17,6 @@ class Perceptron
 				   const std::string &threeWordsDoc,
 				   int n = 3,
 				   bool preprocesado = true);
-		virtual ~Perceptron();
 
 		/** Entrena a Perceptron con shingles de multiplicidad n (ver ctor) **/
 		void entrenar(int iterations);

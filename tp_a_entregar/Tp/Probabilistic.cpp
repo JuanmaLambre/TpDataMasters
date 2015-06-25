@@ -15,6 +15,11 @@ Probabilistic::Probabilistic(int quantWordByShingle, std::vector<std::string> fi
 	if (quantWordByShingle >= 1) {					// Shingle de 1 palabra
 		std::string nameFile = fileFrequencyDocumentNames[0];
 		std::ifstream wordFile(nameFile.c_str());
+		if (!wordFile.good()) {
+			std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+			std::cout << "    " + nameFile + " is not good\n";
+			std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		}
 
 		for(int i = 0; i < 75000; ++i) {
 			std::getline(wordFile, line);
@@ -42,7 +47,6 @@ Probabilistic::Probabilistic(int quantWordByShingle, std::vector<std::string> fi
 		}
 	}
 	if (quantWordByShingle >= 3) {					// Shingle de 3 palabra
-		printf("3\n");
 		std::string nameFile = fileFrequencyDocumentNames[2];
 		std::ifstream wordFile(nameFile.c_str());
 
